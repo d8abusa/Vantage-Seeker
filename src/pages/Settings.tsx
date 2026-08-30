@@ -21,8 +21,8 @@ export function Settings() {
 
   // Account
   const [profile, setProfile] = useState({
-    name: 'Robert Nichols',
-    email: 'robert@vantage-alpha.com',
+    name: 'Portfolio Manager',
+    email: 'user@example.com',
     firm: 'Vantage Seeker Capital',
     role: 'Portfolio Manager',
   })
