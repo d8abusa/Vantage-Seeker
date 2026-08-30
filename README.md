@@ -75,11 +75,32 @@ npm run build
 npm run preview
 ```
 
-## Data source
+## Credits
 
-Strategy names, categories, and selected formulas are derived from:
+Vantage Seeker would not exist without the foundational work of **Zura Kakushadze** and **Juan Andrés Serur**.
 
-> Zura Kakushadze and Juan Andrés Serur, "151 Trading Strategies," SSRN-3247865, 2018.
+All strategy names, categories, descriptions, and selected mathematical formulas are derived from their encyclopedic work:
+
+> **Zura Kakushadze and Juan Andrés Serur,** *"151 Trading Strategies,"* SSRN-3247865, 2018.  
+> Available at: [https://ssrn.com/abstract=3247865](https://ssrn.com/abstract=3247865)
+
+The original paper is a 361-page pedagogical reference covering over 150 trading strategies across a host of asset classes, complete with more than 550 mathematical formulas, source code for backtesting, bibliographic references, and a detailed glossary. Vantage Seeker is an independent interactive frontend built on top of that research.
+
+### Citation
+
+If you use Vantage Seeker in academic or commercial work, please cite the original source:
+
+```bibtex
+@article{kakushadze2018151,
+  title={151 Trading Strategies},
+  author={Kakushadze, Zura and Serur, Juan Andr{\'e}s},
+  journal={SSRN Electronic Journal},
+  year={2018},
+  publisher={Elsevier}
+}
+```
+
+## Disclaimer
 
 This application is a pedagogical frontend; it does not provide investment advice.
 
