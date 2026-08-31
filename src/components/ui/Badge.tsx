@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 
 interface BadgeProps {
   children: React.ReactNode
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'accent' | 'secondary'
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'accent' | 'secondary' | 'outline'
   className?: string
 }
 
@@ -13,6 +13,7 @@ const variants = {
   danger: 'bg-accent-danger/10 text-accent-danger border-accent-danger/30',
   accent: 'bg-accent/10 text-accent border-accent/30',
   secondary: 'bg-accent-secondary/10 text-accent-secondary border-accent-secondary/30',
+  outline: 'bg-transparent text-text-muted border-border',
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {

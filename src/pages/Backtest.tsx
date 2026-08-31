@@ -2,9 +2,11 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardSubtitle, CardTitle } from '@/components/ui/Card'
 import { strategies } from '@/data/strategies'
-import { runHistoricalBacktest, selectSignalType, type HistoricalBacktestResult, type SignalType } from '@/lib/backtest'
+import { selectSignalType } from '@/lib/backtest'
+import { signalOptions, strategyPresets } from '@/lib/config'
 import { fetchYahooHistory } from '@/lib/data/yahoo'
-import { runBacktest, type BacktestResult } from '@/lib/simulation'
+import { runHistoricalEngine, runSimulationEngine } from '@/lib/engines'
+import { OperationalMode, type HistoricalResult, type SignalType, type SimulationResult } from '@/lib/model'
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { AlertCircle, Database, Play, RotateCcw, Save, Settings2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -25,33 +27,6 @@ const timeframes = [
   { label: '10Y', years: 10 },
 ]
 
-const strategyPresets: Record<string, { return: number; vol: number; asset: string; rebalance: string }> = {
-  Options: { return: 8, vol: 18, asset: 'SPY', rebalance: 'Monthly' },
-  Stocks: { return: 10, vol: 16, asset: 'SPY', rebalance: 'Monthly' },
-  ETFs: { return: 9, vol: 14, asset: 'SPY', rebalance: 'Monthly' },
-  'Fixed Income': { return: 5, vol: 6, asset: 'TLT', rebalance: 'Monthly' },
-  Indexes: { return: 9, vol: 15, asset: 'SPY', rebalance: 'Monthly' },
-  Volatility: { return: 7, vol: 28, asset: 'VIX', rebalance: 'Weekly' },
-  'Foreign Exchange': { return: 6, vol: 9, asset: 'EURUSD=X', rebalance: 'Weekly' },
-  Commodities: { return: 6, vol: 20, asset: 'GC=F', rebalance: 'Monthly' },
-  Futures: { return: 8, vol: 17, asset: 'ES=F', rebalance: 'Weekly' },
-  'Structured Assets': { return: 5, vol: 10, asset: 'CDX', rebalance: 'Monthly' },
-  Convertibles: { return: 6, vol: 8, asset: 'CWB', rebalance: 'Monthly' },
-  'Tax Arbitrage': { return: 4, vol: 4, asset: 'MUB', rebalance: 'Monthly' },
-  'Miscellaneous Assets': { return: 5, vol: 12, asset: 'Custom', rebalance: 'Monthly' },
-  'Distressed Assets': { return: 9, vol: 22, asset: 'HYG', rebalance: 'Monthly' },
-  'Real Estate': { return: 7, vol: 16, asset: 'VNQ', rebalance: 'Monthly' },
-  Cash: { return: 3, vol: 1, asset: 'SHV', rebalance: 'Monthly' },
-  Cryptocurrencies: { return: 18, vol: 55, asset: 'BTC-USD', rebalance: 'Daily' },
-  'Global Macro': { return: 8, vol: 12, asset: 'DXY', rebalance: 'Monthly' },
-}
-
-const signalOptions: { value: SignalType; label: string }[] = [
-  { value: 'momentum', label: 'Momentum (20/50 SMA)' },
-  { value: 'mean-reversion', label: 'Mean-Reversion (z-score)' },
-  { value: 'buy-hold', label: 'Buy & Hold' },
-]
-
 export function Backtest() {
   const [capital, setCapital] = useState(1000000)
   const [years, setYears] = useState(5)
@@ -66,8 +41,10 @@ export function Backtest() {
 
   const [running, setRunning] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [syntheticResult, setSyntheticResult] = useState<BacktestResult | null>(null)
-  const [historicalResult, setHistoricalResult] = useState<HistoricalBacktestResult | null>(null)
+  const [result, setResult] = useState<{
+    data: SimulationResult | HistoricalResult
+    mode: OperationalMode
+  } | null>(null)
 
   const selectedStrategy = useMemo(
     () => strategies.find((s) => s.id === selectedStrategyId) || strategies[0],
@@ -80,25 +57,30 @@ export function Backtest() {
     setAnnualVol(preset.vol)
     setAsset(preset.asset)
     setSignalType(selectSignalType(selectedStrategy.category))
-  }, [selectedStrategyId])
+  }, [selectedStrategy])
 
   const run = async () => {
     setRunning(true)
     setError(null)
-    setSyntheticResult(null)
-    setHistoricalResult(null)
+    setResult(null)
 
     try {
       if (dataSource === 'synthetic') {
-        const result = runBacktest(capital, years, annualReturn / 100, annualVol / 100)
-        setSyntheticResult(result)
+        const data = runSimulationEngine({
+          initialCapital: capital,
+          years,
+          annualReturn: annualReturn / 100,
+          annualVol: annualVol / 100,
+          seed: selectedStrategy.id,
+        })
+        setResult({ data, mode: OperationalMode.simulation })
       } else {
-        const data = await fetchYahooHistory(asset, years, proxyUrl || undefined)
-        if (data.bars.length < 50) {
+        const historicalData = await fetchYahooHistory(asset, years, proxyUrl || undefined)
+        if (historicalData.bars.length < 50) {
           throw new Error('Insufficient historical data for backtest')
         }
-        const result = runHistoricalBacktest(data.bars, capital, signalType)
-        setHistoricalResult(result)
+        const data = await runHistoricalEngine(asset, years, signalType, proxyUrl)
+        setResult({ data, mode: OperationalMode.historical })
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Backtest failed')
@@ -109,22 +91,26 @@ export function Backtest() {
 
   useEffect(() => {
     run()
+    // Intentionally run only once on mount to populate the default backtest.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const result = syntheticResult || historicalResult
 
   const chartData = useMemo(() => {
     if (!result) return []
-    return result.dates
+    return result.data.dates
       .map((date, i) => ({
         date,
-        equity: result.equity[i],
-        drawdown: result.drawdowns[i] * 100,
+        equity: result.data.equity[i],
+        drawdown: result.data.drawdowns[i] * 100,
       }))
-      .filter((_, i) => i % Math.max(1, Math.floor(result.dates.length / 100)) === 0)
+      .filter((_, i) => i % Math.max(1, Math.floor(result.data.dates.length / 100)) === 0)
   }, [result])
 
   const preset = strategyPresets[selectedStrategy.category] || strategyPresets.Stocks
+  const isHistorical = result?.mode === OperationalMode.historical
+  const signalDescription = isHistorical
+    ? (result.data as HistoricalResult).signalDescription
+    : ''
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -380,12 +366,15 @@ export function Backtest() {
                     <CardTitle>Backtest Configuration</CardTitle>
                     <CardSubtitle>
                       {selectedStrategy.name} on {asset} · {years}Y
-                      {dataSource === 'yahoo' && historicalResult ? ` · ${historicalResult.signalDescription}` : ''}
+                      {isHistorical ? ` · ${signalDescription}` : ''}
                     </CardSubtitle>
                   </div>
-                  <Badge variant={dataSource === 'yahoo' ? 'success' : 'warning'}>
-                    {dataSource === 'yahoo' ? 'Historical' : 'Synthetic'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={isHistorical ? 'success' : 'warning'}>
+                      {isHistorical ? 'Historical' : 'Synthetic'}
+                    </Badge>
+                    <Badge variant="outline">{result.data.provenance}</Badge>
+                  </div>
                 </CardHeader>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="rounded-lg border border-border bg-bg-card p-3">
@@ -399,7 +388,7 @@ export function Backtest() {
                   <div className="rounded-lg border border-border bg-bg-card p-3">
                     <div className="text-xs text-text-muted">Data Source</div>
                     <div className="font-medium text-text-heading">
-                      {dataSource === 'yahoo' ? 'Yahoo Finance' : 'Monte Carlo'}
+                      {isHistorical ? 'Yahoo Finance' : 'Monte Carlo'}
                     </div>
                   </div>
                 </div>
@@ -407,14 +396,14 @@ export function Backtest() {
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { label: 'Total Return', value: formatPercent(result.metrics.totalReturn), color: result.metrics.totalReturn >= 0 ? 'text-accent-success' : 'text-accent-danger' },
-                  { label: 'Annualized Return', value: formatPercent(result.metrics.annualizedReturn), color: 'text-accent' },
-                  { label: 'Volatility', value: formatPercent(result.metrics.volatility), color: 'text-accent-warning' },
-                  { label: 'Max Drawdown', value: formatPercent(result.metrics.maxDrawdown), color: 'text-accent-danger' },
-                  { label: 'Sharpe Ratio', value: result.metrics.sharpe.toFixed(2), color: 'text-accent-success' },
-                  { label: 'Win Rate', value: formatPercent(result.metrics.winRate), color: 'text-text-heading' },
-                  { label: 'Trades', value: result.metrics.trades.toString(), color: 'text-text-heading' },
-                  { label: 'Final Equity', value: formatCurrency(result.equity[result.equity.length - 1]), color: 'text-text-heading' },
+                  { label: 'Total Return', value: formatPercent(result.data.metrics.totalReturn), color: result.data.metrics.totalReturn >= 0 ? 'text-accent-success' : 'text-accent-danger' },
+                  { label: 'Annualized Return', value: formatPercent(result.data.metrics.annualizedReturn), color: 'text-accent' },
+                  { label: 'Volatility', value: formatPercent(result.data.metrics.volatility), color: 'text-accent-warning' },
+                  { label: 'Max Drawdown', value: formatPercent(result.data.metrics.maxDrawdown), color: 'text-accent-danger' },
+                  { label: 'Sharpe Ratio', value: result.data.metrics.sharpe.toFixed(2), color: 'text-accent-success' },
+                  { label: 'Win Rate', value: formatPercent(result.data.metrics.winRate), color: 'text-text-heading' },
+                  { label: 'Trades', value: result.data.metrics.trades.toString(), color: 'text-text-heading' },
+                  { label: 'Final Equity', value: formatCurrency(result.data.equity[result.data.equity.length - 1]), color: 'text-text-heading' },
                 ].map((m) => (
                   <Card key={m.label}>
                     <div className="text-xs text-text-muted">{m.label}</div>
@@ -428,11 +417,11 @@ export function Backtest() {
                   <div>
                     <CardTitle>Equity Curve</CardTitle>
                     <CardSubtitle>
-                      {dataSource === 'yahoo' ? 'Historical' : 'Synthetic'} {years}-year performance for {selectedStrategy.name}
+                      {isHistorical ? 'Historical' : 'Synthetic'} {years}-year performance for {selectedStrategy.name}
                     </CardSubtitle>
                   </div>
-                  <Badge variant={result.metrics.totalReturn >= 0 ? 'success' : 'danger'}>
-                    {formatPercent(result.metrics.totalReturn)}
+                  <Badge variant={result.data.metrics.totalReturn >= 0 ? 'success' : 'danger'}>
+                    {formatPercent(result.data.metrics.totalReturn)}
                   </Badge>
                 </CardHeader>
                 <div className="h-80">
@@ -462,6 +451,21 @@ export function Backtest() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assumptions & Provenance</CardTitle>
+                  <CardSubtitle>Where these numbers come from</CardSubtitle>
+                </CardHeader>
+                <ul className="space-y-2 text-sm text-text-muted">
+                  {result.data.assumptions.map((assumption, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" />
+                      {assumption}
+                    </li>
+                  ))}
+                </ul>
               </Card>
             </>
           )}

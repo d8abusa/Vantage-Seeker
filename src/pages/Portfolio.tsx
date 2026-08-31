@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardSubtitle, CardTitle } from '@/components/ui/Card'
 import { strategies } from '@/data/strategies'
+import { runPortfolioEngine } from '@/lib/engines'
+import { OperationalMode, Provenance } from '@/lib/model'
 import { cn, formatPercent } from '@/lib/utils'
 import { ArrowRightLeft, Briefcase, Plus, Target, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -46,17 +48,14 @@ export function Portfolio() {
   const totalWeight = holdings.reduce((sum, h) => sum + h.weight, 0)
   const isBalanced = Math.abs(totalWeight - 100) < 0.1
 
-  const portfolioStats = useMemo(() => {
-    const expectedReturn = portfolioStrategies.reduce((sum, { holding }) => sum + holding.weight * 0.08, 0)
-    const expectedVol = Math.sqrt(
-      portfolioStrategies.reduce((sum, { holding }) => sum + Math.pow((holding.weight / 100) * 12, 2), 0)
-    )
-    const sharpe = expectedVol > 0 ? (expectedReturn - 4) / expectedVol : 0
-    return {
-      expectedReturn,
-      expectedVol,
-      sharpe,
-    }
+  const portfolioResult = useMemo(() => {
+    const allocations = portfolioStrategies.map(({ strategy, holding }) => ({
+      strategyId: strategy.id,
+      name: strategy.name,
+      category: strategy.category,
+      weight: holding.weight / 100,
+    }))
+    return runPortfolioEngine({ allocations })
   }, [portfolioStrategies])
 
   const pieData = portfolioStrategies.map(({ strategy, holding }) => ({
@@ -222,22 +221,34 @@ export function Portfolio() {
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <span className="text-sm text-text">Expected Return</span>
-                <span className={cn('font-mono font-semibold', portfolioStats.expectedReturn >= 0 ? 'text-accent-success' : 'text-accent-danger')}>
-                  {formatPercent(portfolioStats.expectedReturn)}
+                <span className={cn('font-mono font-semibold', portfolioResult.expectedReturn.value >= 0 ? 'text-accent-success' : 'text-accent-danger')}>
+                  {formatPercent(portfolioResult.expectedReturn.value)}
                 </span>
               </div>
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <span className="text-sm text-text">Expected Volatility</span>
-                <span className="font-mono font-semibold text-accent-warning">{formatPercent(portfolioStats.expectedVol)}</span>
+                <span className="font-mono font-semibold text-accent-warning">{formatPercent(portfolioResult.expectedVolatility.value)}</span>
               </div>
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <span className="text-sm text-text">Sharpe Ratio</span>
-                <span className="font-mono font-semibold text-accent">{portfolioStats.sharpe.toFixed(2)}</span>
+                <span className="font-mono font-semibold text-accent">{portfolioResult.sharpe.value.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-text">Strategies</span>
                 <span className="font-mono font-semibold text-text-heading">{holdings.length}</span>
               </div>
+            </div>
+            <div className="mt-4 rounded-lg border border-border bg-bg-card/50 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wider text-text-muted">Provenance</div>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <Badge variant="outline">{OperationalMode.simulation}</Badge>
+                <Badge variant="outline">{Provenance.synthetic}</Badge>
+              </div>
+              <ul className="mt-2 space-y-1 text-[10px] text-text-muted">
+                {portfolioResult.assumptions.map((a, i) => (
+                  <li key={i}>• {a}</li>
+                ))}
+              </ul>
             </div>
             <Button
               className="mt-6 w-full"

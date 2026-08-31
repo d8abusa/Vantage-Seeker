@@ -1,4 +1,6 @@
 import { cn } from '@/lib/utils'
+import { getSystemStatus } from '@/lib/status'
+import { OperationalMode, type SystemStatus } from '@/lib/model'
 import {
   Activity,
   BarChart3,
@@ -14,7 +16,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
@@ -38,6 +40,23 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Map route to operational mode for honest status reporting.
+  const status = useMemo<SystemStatus>(() => {
+    const path = location.pathname
+    let mode: OperationalMode = OperationalMode.research
+    if (path === '/' || path.startsWith('/strategies') || path === '/glossary') {
+      mode = OperationalMode.research
+    } else if (path === '/backtest' || path === '/wizard' || path === '/portfolio') {
+      mode = OperationalMode.simulation
+    } else if (path === '/settings') {
+      mode = OperationalMode.config
+    }
+    return getSystemStatus(mode)
+  }, [location.pathname])
+
+  const liveSource = status.sources.find((s) => s.name === 'Yahoo Finance')
+  const statusColor = liveSource?.connected ? 'text-accent-success' : 'text-text-muted'
 
   return (
     <div className="flex min-h-screen">
@@ -101,14 +120,22 @@ export function Layout({ children }: LayoutProps) {
         <div className="border-t border-border p-4">
           <div className="rounded-xl border border-border bg-bg-card p-3">
             <div className="mb-1 text-xs text-text-muted">System Status</div>
-            <div className="flex items-center gap-2 text-sm font-medium text-accent-success">
+            <div className={`flex items-center gap-2 text-sm font-medium ${statusColor}`}>
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-success opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-success"></span>
+                {liveSource?.connected ? (
+                  <>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-success opacity-75"></span>
+                    <span className="relative inline-flex h-full w-2 rounded-full bg-accent-success"></span>
+                  </>
+                ) : (
+                  <span className="relative inline-flex h-full w-2 rounded-full bg-text-muted"></span>
+                )}
               </span>
-              Data feeds live
+              {liveSource?.connected ? 'Live feed configured' : 'No live feed'}
             </div>
-            <div className="mt-2 text-[10px] text-text-muted">171 strategies loaded from SSRN-3247865</div>
+            <div className="mt-2 text-[10px] text-text-muted">
+              {status.strategiesLoaded} strategies · {status.mode} mode
+            </div>
           </div>
         </div>
       </aside>

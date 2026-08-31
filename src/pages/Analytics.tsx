@@ -1,4 +1,7 @@
+import { Badge } from '@/components/ui/Badge'
 import { Card, CardHeader, CardSubtitle, CardTitle } from '@/components/ui/Card'
+import { correlationAssetNames, hardcodedRiskMetrics } from '@/lib/config'
+import { Provenance } from '@/lib/model'
 import { generateCorrelationMatrix, runBacktest } from '@/lib/simulation'
 import { AlertTriangle, BarChart3, Shield, TrendingDown } from 'lucide-react'
 import { useMemo } from 'react'
@@ -14,10 +17,8 @@ import {
 } from 'recharts'
 import { motion } from 'framer-motion'
 
-const assetNames = ['Stocks', 'Options', 'Fixed Income', 'FX', 'Commodities', 'Volatility', 'Crypto']
-
 export function Analytics() {
-  const correlation = useMemo(() => generateCorrelationMatrix(assetNames), [])
+  const correlation = useMemo(() => generateCorrelationMatrix(correlationAssetNames), [])
   const backtests = useMemo(() => {
     return [
       { name: 'Price Momentum', ...runBacktest(1000000, 5, 0.10, 0.18, 1).metrics },
@@ -43,13 +44,16 @@ export function Analytics() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: 'Portfolio VaR (95%)', value: '-2.4%', sub: '1-day parametric', icon: AlertTriangle, color: 'text-accent-danger' },
-          { label: 'Expected Shortfall', value: '-3.7%', sub: 'CVaR 95%', icon: TrendingDown, color: 'text-accent-warning' },
-          { label: 'Beta to S&P 500', value: '0.31', sub: 'Low market exposure', icon: BarChart3, color: 'text-accent-success' },
-          { label: 'Stress Loss', value: '-12.8%', sub: '2008-like scenario', icon: Shield, color: 'text-accent' },
-        ].map((stat, i) => {
-          const Icon = stat.icon
+        {hardcodedRiskMetrics.map((stat, i) => {
+          const icons: Record<string, typeof AlertTriangle> = {
+            'Portfolio VaR (95%)': AlertTriangle,
+            'Expected Shortfall': TrendingDown,
+            'Beta to S&P 500': BarChart3,
+            'Stress Loss': Shield,
+          }
+          const Icon = icons[stat.label] || AlertTriangle
+          const colors = ['text-accent-danger', 'text-accent-warning', 'text-accent-success', 'text-accent']
+          const color = colors[i % colors.length]
           return (
             <motion.div
               key={stat.label}
@@ -60,11 +64,14 @@ export function Analytics() {
               <Card>
                 <CardHeader>
                   <div>
-                    <CardSubtitle>{stat.label}</CardSubtitle>
-                    <div className={`mt-1 text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                    <div className="flex items-center gap-2">
+                      <CardSubtitle>{stat.label}</CardSubtitle>
+                      <Badge variant="outline">{Provenance.cosmetic}</Badge>
+                    </div>
+                    <div className={`mt-1 text-2xl font-bold ${color}`}>{stat.value}</div>
                     <div className="mt-1 text-xs text-text-muted">{stat.sub}</div>
                   </div>
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
+                  <Icon className={`h-5 w-5 ${color}`} />
                 </CardHeader>
               </Card>
             </motion.div>
@@ -126,25 +133,28 @@ export function Analytics() {
       <Card>
         <CardHeader>
           <div>
-            <CardTitle>Cross-Asset Correlation Matrix</CardTitle>
-            <CardSubtitle>Estimated pairwise correlations across major sleeves</CardSubtitle>
+            <div className="flex items-center gap-2">
+              <CardTitle>Cross-Asset Correlation Matrix</CardTitle>
+              <Badge variant="outline">{Provenance.cosmetic}</Badge>
+            </div>
+            <CardSubtitle>Random noise for demonstration — not estimated from data</CardSubtitle>
           </div>
         </CardHeader>
         <div className="overflow-x-auto">
           <div className="min-w-[600px]">
-            <div className="grid" style={{ gridTemplateColumns: `repeat(${assetNames.length + 1}, minmax(0, 1fr))` }}>
+            <div className="grid" style={{ gridTemplateColumns: `repeat(${correlationAssetNames.length + 1}, minmax(0, 1fr))` }}>
               <div className="p-2 text-xs font-semibold text-text-muted"></div>
-              {assetNames.map((name) => (
+              {correlationAssetNames.map((name) => (
                 <div key={name} className="p-2 text-center text-xs font-semibold text-text-heading">
                   {name}
                 </div>
               ))}
-              {assetNames.map((row, i) => (
+              {correlationAssetNames.map((row, i) => (
                 <>
                   <div key={`row-${row}`} className="p-2 text-xs font-semibold text-text-heading">
                     {row}
                   </div>
-                  {assetNames.map((_, j) => {
+                  {correlationAssetNames.map((_, j) => {
                     const val = correlation[i][j]
                     return (
                       <div

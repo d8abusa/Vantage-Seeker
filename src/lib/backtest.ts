@@ -1,23 +1,19 @@
+/**
+ * Vantage Seeker — Historical Backtest Engine
+ *
+ * This module runs simple price-overlay signals on real historical closes
+ * fetched from Yahoo Finance. It is intentionally naive: no dividends, fees,
+ * slippage, or borrow costs.
+ *
+ * Provenance: prices are Provenance.real; signals and derived metrics are
+ * Provenance.synthetic overlays on top of real data.
+ */
+
+import { RISK_FREE_RATE, TRADING_DAYS_PER_YEAR } from './config'
 import type { YahooBar } from './data/yahoo'
+import { Provenance, type HistoricalResult, type SignalType } from './model'
 
-export interface HistoricalBacktestResult {
-  dates: string[]
-  equity: number[]
-  returns: number[]
-  drawdowns: number[]
-  metrics: {
-    totalReturn: number
-    annualizedReturn: number
-    volatility: number
-    sharpe: number
-    maxDrawdown: number
-    winRate: number
-    trades: number
-  }
-  signalDescription: string
-}
-
-export type SignalType = 'momentum' | 'mean-reversion' | 'buy-hold'
+export type { HistoricalResult, SignalType }
 
 function sma(values: number[], period: number): number[] {
   const result: number[] = []
@@ -83,11 +79,24 @@ function generateSignals(closes: number[], signalType: SignalType): number[] {
   return signals
 }
 
+const descriptions: Record<SignalType, string> = {
+  momentum: 'Long when 20-day SMA > 50-day SMA, short when below.',
+  'mean-reversion': 'Long when price z-score < -1.5, short when z-score > +1.5.',
+  'buy-hold': 'Fully invested long throughout the period.',
+}
+
+/**
+ * Run a historical backtest using real closing prices and a simple signal overlay.
+ *
+ * @param bars Yahoo Finance bars (date + close)
+ * @param initialCapital starting equity
+ * @param signalType overlay rule to apply
+ */
 export function runHistoricalBacktest(
   bars: YahooBar[],
   initialCapital: number,
   signalType: SignalType
-): HistoricalBacktestResult {
+): HistoricalResult {
   const closes = bars.map((b) => b.close)
   const dates = bars.map((b) => b.date)
   const signals = generateSignals(closes, signalType)
@@ -118,25 +127,26 @@ export function runHistoricalBacktest(
   }
 
   const finalEquity = equity[equity.length - 1]
-  const totalReturn = (finalEquity - initialCapital) / initialCapital * 100
-  const years = bars.length / 252
+  const totalReturn = ((finalEquity - initialCapital) / initialCapital) * 100
+  const years = bars.length / TRADING_DAYS_PER_YEAR
   const annualizedReturn = years > 0 ? (Math.pow(finalEquity / initialCapital, 1 / years) - 1) * 100 : 0
   const variance = returns.slice(1).reduce((a, b) => a + b * b, 0) / Math.max(1, returns.length - 1)
-  const volatility = Math.sqrt(variance) * Math.sqrt(252) * 100
-  const sharpe = volatility > 0 ? (annualizedReturn - 4) / volatility : 0
+  const volatility = Math.sqrt(variance) * Math.sqrt(TRADING_DAYS_PER_YEAR) * 100
+  const sharpe = volatility > 0 ? (annualizedReturn - RISK_FREE_RATE * 100) / volatility : 0
   const maxDrawdown = Math.min(...drawdowns) * 100
-
-  const descriptions: Record<SignalType, string> = {
-    'momentum': 'Long when 20-day SMA > 50-day SMA, short when below.',
-    'mean-reversion': 'Long when price z-score < -1.5, short when z-score > +1.5.',
-    'buy-hold': 'Fully invested long throughout the period.',
-  }
 
   return {
     dates,
     equity,
     returns,
     drawdowns,
+    provenance: Provenance.real,
+    assumptions: [
+      'Prices fetched from Yahoo Finance (real historical closes)',
+      `Signal overlay: ${descriptions[signalType]}`,
+      'No dividends, fees, slippage, or borrow costs',
+      `Sharpe subtracts ${(RISK_FREE_RATE * 100).toFixed(0)}% risk-free rate`,
+    ],
     metrics: {
       totalReturn,
       annualizedReturn,
@@ -146,10 +156,14 @@ export function runHistoricalBacktest(
       winRate: bars.length > 1 ? (positiveDays / (bars.length - 1)) * 100 : 0,
       trades,
     },
+    signalType,
     signalDescription: descriptions[signalType],
   }
 }
 
+/**
+ * Choose a default signal overlay for a strategy category.
+ */
 export function selectSignalType(category: string): SignalType {
   if (['Stocks', 'ETFs', 'Futures', 'Cryptocurrencies'].includes(category)) return 'momentum'
   if (['Volatility', 'Foreign Exchange', 'Commodities'].includes(category)) return 'mean-reversion'

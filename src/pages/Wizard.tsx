@@ -2,7 +2,8 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardSubtitle, CardTitle } from '@/components/ui/Card'
 import { categories, strategies } from '@/data/strategies'
-import { runBacktest, type BacktestResult } from '@/lib/simulation'
+import { runWizardEngine } from '@/lib/engines'
+import { OperationalMode, Provenance, type SimulationResult } from '@/lib/model'
 import { cn, formatCurrency, formatPercent } from '@/lib/utils'
 import { ArrowRight, BarChart3, Sparkles, Target, Zap } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -38,7 +39,7 @@ interface WizardResult {
   strategyId: number
   strategyName: string
   category: string
-  result: BacktestResult
+  result: SimulationResult
   rank: number
 }
 
@@ -60,33 +61,22 @@ export function Wizard() {
 
     // Simulate async processing
     setTimeout(() => {
-      const simulated = categoryStrategies
-        .map((strategy, index) => {
-          // Vary return/vol slightly by strategy to create ranking differentiation
-          const baseReturn = selectedCategory === 'Cryptocurrencies' ? 0.18 : selectedCategory === 'Fixed Income' ? 0.05 : 0.10
-          const baseVol = selectedCategory === 'Cryptocurrencies' ? 0.55 : selectedCategory === 'Fixed Income' ? 0.06 : 0.16
-          const strategyAlpha = ((index % 5) - 2) * 0.015
-          const strategyVolAdj = 1 + ((index % 3) - 1) * 0.1
+      const ranked = runWizardEngine(
+        categoryStrategies.map((s) => s.id),
+        selectedCategory,
+        years
+      )
 
-          const result = runBacktest(
-            1000000,
-            years,
-            Math.max(-0.05, baseReturn + strategyAlpha),
-            Math.max(0.02, baseVol * strategyVolAdj),
-            strategy.id
-          )
-
-          return {
-            strategyId: strategy.id,
-            strategyName: strategy.name,
-            category: strategy.category,
-            result,
-            score: result.metrics.sharpe,
-          }
-        })
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3)
-        .map((item, i) => ({ ...item, rank: i + 1 }))
+      const simulated: WizardResult[] = ranked.slice(0, 3).map((item) => {
+        const strategy = strategies.find((s) => s.id === item.strategyId)!
+        return {
+          strategyId: strategy.id,
+          strategyName: strategy.name,
+          category: strategy.category,
+          result: item.result,
+          rank: item.rank,
+        }
+      })
 
       setResults(simulated)
       setRunning(false)
@@ -234,6 +224,13 @@ export function Wizard() {
               <p className="text-text-muted">
                 For {asset} over {years} years in {selectedCategory}
               </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant="warning">{OperationalMode.simulation}</Badge>
+                <Badge variant="outline">{Provenance.synthetic}</Badge>
+                <span className="text-xs text-text-muted">
+                  Ranking is produced from perturbed synthetic assumptions, not historical performance.
+                </span>
+              </div>
             </div>
             <Link to="/portfolio">
               <Button variant="outline">

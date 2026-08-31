@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vantage — Where the Alpha Actually Flows</title>
+<title>Vantage Seeker — Agent-Ergonomic System Map</title>
 <style>
   :root{
     --bg:#020617; --panel:#0f172a; --panel2:#0b1220; --line:#1e293b;
@@ -17,7 +17,6 @@
     font:14px/1.5 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased}
   .wrap{width:1400px;margin:0 auto;padding:34px 40px 40px}
-  /* header */
   .eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--dim)}
   h1{margin:10px 0 4px;font-size:30px;font-weight:700;letter-spacing:-.01em}
   .lede{margin:0;color:var(--muted);max-width:980px;font-size:14px}
@@ -33,14 +32,12 @@
   .stat.seed .n{color:var(--param)}
   .stat.cats .n{color:var(--present)}
   .stat.ext .n{color:var(--external)}
-  /* layout */
   .grid{display:grid;grid-template-columns:888px 1fr;gap:18px;margin-top:22px;align-items:start}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px}
   .card h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.02em;padding:14px 16px;
     display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line)}
   .card h2 .tag{margin-left:auto;font-size:10px;color:var(--dim);letter-spacing:.18em;text-transform:uppercase}
   .dot{width:9px;height:9px;border-radius:50%;background:var(--real);box-shadow:0 0 10px rgba(34,211,238,.6)}
-  /* svg map */
   .map{padding:10px 10px 4px}
   .map svg{width:100%;height:auto;display:block}
   .flow{fill:none;stroke-width:2.5;stroke:var(--dim);opacity:.5;stroke-linecap:round;
@@ -54,14 +51,12 @@
   .node .note{fill:var(--muted);font:400 11px Inter,system-ui}
   .chip{rx:4}
   .chip tspan{font:700 8.5px Inter,system-ui;letter-spacing:.14em}
-  /* highlight states */
   svg[data-focus] .flow{opacity:.09}
   svg[data-focus] .node{opacity:.28}
   svg .flow.lit{opacity:1;stroke-width:4}
   svg .node.lit{opacity:1}
   svg .node.lit rect{stroke:var(--fcolor,#22d3ee);filter:drop-shadow(0 0 10px rgba(34,211,238,.35))}
-  /* legend panel */
-  .fl{display:flex;flex-direction:column;gap:9px;padding:14px 14px 16px;max-height:700px;overflow:auto}
+  .fl{display:flex;flex-direction:column;gap:9px;padding:14px 14px 16px;max-height:760px;overflow:auto}
   .fl .tip{font-size:11px;color:var(--dim);margin-bottom:2px}
   .flrow{display:flex;flex-direction:column;gap:6px;background:var(--panel2);border:1px solid var(--line);
     border-radius:12px;padding:11px 12px;cursor:pointer;transition:transform .15s,border-color .2s,background .2s}
@@ -79,15 +74,13 @@
     padding:9px 13px;font:600 12px Inter;cursor:pointer}
   .btn:hover{border-color:var(--real);background:#12234a}
   .btn.primary{background:linear-gradient(180deg,#155e75,#0e4a5e);border-color:rgba(34,211,238,.5)}
-  /* stage band */
-  .band{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:18px}
+  .band{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:18px}
   .stage{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px 13px}
   .stage .s{font:700 10px Inter;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
   .stage .t{margin-top:6px;font-weight:600;font-size:13px}
   .stage .d{margin-top:5px;font-size:11px;color:var(--muted)}
   .stage .c{margin-top:9px;display:inline-block;font:700 8.5px Inter;letter-spacing:.12em;
     color:#04121b;background:var(--real);border-radius:5px;padding:3px 6px}
-  /* legend chips */
   .classes{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
   .classes .lab{font-size:11px;color:var(--dim);margin-right:4px}
   .ck{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
@@ -100,16 +93,16 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow">Vantage Seeker · Quantitative Alpha Engine — system map</div>
+  <div class="eyebrow">Vantage Seeker · Agent-Ergonomic System Map</div>
   <h1>Where the alpha actually flows</h1>
-  <p class="lede">This is a <b>strategy catalog with a simulation layer on top</b>. The 171 strategies are a real, hand-transcribed 2018 paper. Most of what you see on screen is static or parametric — but today there is also an <b>optional live-data path</b> through Yahoo Finance and a config layer for API keys. Hover any flow to trace where a number comes from.</p>
+  <p class="lede">This is a <b>strategy catalog with a provenance-aware simulation layer</b>. Every number knows whether it came from the frozen paper, a user assumption, a real Yahoo price, or a cosmetic literal. The architecture is seven layers; each layer depends only on the layer below. Hover a flow to trace a number's lineage.</p>
 
   <div class="strip">
-    <div class="stat cats"><div class="n">171</div><div class="k">strategies from <span class="mono">strategies.ts</span></div></div>
+    <div class="stat cats"><div class="n">171</div><div class="k">strategies in <span class="mono">strategies.ts</span></div></div>
     <div class="stat ext"><div class="n">1</div><div class="k">optional live feed (Yahoo Finance via CORS proxy)</div></div>
     <div class="stat zero"><div class="n">0</div><div class="k">order execution · 0 live trading</div></div>
-    <div class="stat seed"><div class="n">seed&nbsp;42</div><div class="k">one seeded RNG drives synthetic backtests</div></div>
-    <div class="stat flag"><div class="n">2</div><div class="k">hardcoded risk constants (VaR −2.4%, ES −3.7%)</div></div>
+    <div class="stat seed"><div class="n">7</div><div class="k">abstraction layers from source to screen</div></div>
+    <div class="stat flag"><div class="n">4</div><div class="k">cosmetic metric groups (VaR/ES/beta/stress/corr/trades)</div></div>
   </div>
 
   <div class="grid">
@@ -117,38 +110,47 @@
     <div class="card">
       <h2><span class="dot"></span>Data flow · evidence-annotated <span class="tag">hover / run trace</span></h2>
       <div class="map">
-        <svg id="map" viewBox="0 0 888 680" xmlns="http://www.w3.org/2000/svg" data-focus="">
+        <svg id="map" viewBox="0 0 888 740" xmlns="http://www.w3.org/2000/svg" data-focus="">
           <defs>
             <marker id="ar" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto">
               <path d="M0,0 L7,4.5 L0,9 Z" fill="context-stroke" opacity=".8"/>
             </marker>
           </defs>
 
-          <!-- TOP ROW: SOURCE → CATALOG → SURFACE -->
+          <!-- TOP ROW: SOURCE → CATALOG -->
           <path id="f1" class="flow dash" data-flow="f1" d="M214,95 L234,95" marker-end="url(#ar)"/>
-          <path id="f2" class="flow dash" data-flow="f2" d="M414,95 L434,95" marker-end="url(#ar)"/>
 
-          <!-- SURFACE → FORMULA VIEW -->
-          <path id="f7" class="flow" data-flow="f7" d="M540,160 L540,180" marker-end="url(#ar)"/>
+          <!-- CATALOG → SIGNALS -->
+          <path id="f2" class="flow" data-flow="f2" d="M414,95 L434,95" marker-end="url(#ar)"/>
 
-          <!-- SURFACE → INPUTS -->
-          <path id="f3" class="flow" data-flow="f3" d="M460,160 C460,180 324,170 234,180" marker-end="url(#ar)"/>
-          <path id="f8" class="flow" data-flow="f8" d="M620,160 C620,180 694,170 694,180" marker-end="url(#ar)"/>
+          <!-- SIGNALS → ENGINES -->
+          <path id="f3" class="flow" data-flow="f3" d="M614,95 L634,95" marker-end="url(#ar)"/>
 
-          <!-- INPUTS → ENGINE -->
-          <path id="f4" class="flow" data-flow="f4" d="M234,245 C234,320 194,360 194,415" marker-end="url(#ar)"/>
-          <path id="f9" class="flow" data-flow="f9" d="M694,310 L694,390" marker-end="url(#ar)"/>
+          <!-- ENGINES ← USER INPUT -->
+          <path id="f4" class="flow" data-flow="f4" d="M120,220 L120,280 L180,320" marker-end="url(#ar)"/>
 
-          <!-- ENGINE → RENDER -->
-          <path id="f5" class="flow" data-flow="f5" d="M444,500 L444,540" marker-end="url(#ar)"/>
+          <!-- ENGINES ← EXTERNAL DATA -->
+          <path id="f5" class="flow" data-flow="f5" d="M770,220 L770,280 L710,320" marker-end="url(#ar)"/>
 
-          <!-- COSMETIC → RENDER -->
-          <path id="f6" class="flow" data-flow="f6" d="M584,590 L554,590" marker-end="url(#ar)"/>
+          <!-- ENGINES → RESULTS -->
+          <path id="f6" class="flow" data-flow="f6" d="M634,410 L614,410" marker-end="url(#ar)"/>
 
-          <!-- NODE: 0 SOURCE -->
+          <!-- RESULTS → ANALYTICS -->
+          <path id="f7" class="flow" data-flow="f7" d="M414,410 L394,410" marker-end="url(#ar)"/>
+
+          <!-- ANALYTICS → PRESENTATION -->
+          <path id="f8" class="flow" data-flow="f8" d="M194,480 L194,520" marker-end="url(#ar)"/>
+
+          <!-- COSMETIC → ANALYTICS -->
+          <path id="f9" class="flow" data-flow="f9" d="M770,520 L770,480 L600,480" marker-end="url(#ar)"/>
+
+          <!-- CONFIG → CATALOG / STATUS -->
+          <path id="f10" class="flow" data-flow="f10" d="M324,160 L324,220" marker-end="url(#ar)"/>
+
+          <!-- NODE: L0 SOURCE -->
           <g class="node" data-node="n0">
             <rect x="14" y="40" width="200" height="110" rx="12"/>
-            <text class="idx" x="32" y="66">STAGE 0 · SOURCE</text>
+            <text class="idx" x="32" y="66">L0 · SOURCE</text>
             <text class="nm" x="32" y="90">Kakushadze &amp; Serur (2018)</text>
             <text class="meta" x="32" y="109">SSRN-3247865 · "151 Strategies"</text>
             <text class="note" x="32" y="128">frozen academic reference</text>
@@ -156,52 +158,52 @@
             <rect class="chip" x="122" y="129" width="78" height="14"/><text class="chip" x="127" y="139" style="fill:#04121b">NO LIVE FEED</text>
           </g>
 
-          <!-- NODE: 1 CATALOG -->
+          <!-- NODE: L1 CATALOG -->
           <g class="node" data-node="n1">
             <rect x="234" y="40" width="180" height="110" rx="12"/>
-            <text class="idx" x="252" y="66">STAGE 1 · CATALOG</text>
-            <text class="nm" x="252" y="90">strategies.ts</text>
-            <text class="meta" x="252" y="109">171 items · 13 asset classes</text>
-            <text class="note" x="252" y="128">transcribed at build, never refreshed</text>
+            <text class="idx" x="252" y="66">L1 · CATALOG + CONFIG</text>
+            <text class="nm" x="252" y="90">strategies.ts / config.ts</text>
+            <text class="meta" x="252" y="109">171 items · 13 classes · presets</text>
+            <text class="note" x="252" y="128">all hardcoded assumptions centralized</text>
             <rect class="chip" x="252" y="129" width="54" height="14"/><text class="chip" x="257" y="139" style="fill:#04121b">REAL</text>
             <rect class="chip" x="310" y="129" width="64" height="14"/><text class="chip" x="315" y="139" style="fill:#04121b">STATIC</text>
           </g>
 
-          <!-- NODE: 2 SURFACE -->
+          <!-- NODE: L2 SIGNALS -->
           <g class="node" data-node="n2">
-            <rect x="434" y="40" width="210" height="120" rx="12"/>
-            <text class="idx" x="452" y="66">STAGE 2 · SURFACE</text>
-            <text class="nm" x="452" y="90">9 React pages</text>
-            <text class="meta" x="452" y="109">Dashboard · Strategies · Wizard · Portfolio</text>
-            <text class="meta" x="452" y="125">Backtest · Analytics · Glossary · Settings</text>
-            <text class="note" x="452" y="142">every page reads the same static catalog; Settings stores API config locally</text>
-            <rect class="chip" x="452" y="143" width="96" height="14"/><text class="chip" x="457" y="153" style="fill:#04121b">PRESENTATION</text>
+            <rect x="434" y="40" width="180" height="110" rx="12"/>
+            <text class="idx" x="452" y="66">L2 · SIGNALS</text>
+            <text class="nm" x="452" y="90">backtest.ts :: selectSignalType</text>
+            <text class="meta" x="452" y="109">momentum · mean-reversion · buy-hold</text>
+            <text class="note" x="452" y="128">maps a strategy category to a simple rule</text>
+            <rect class="chip" x="452" y="129" width="96" height="14"/><text class="chip" x="457" y="139" style="fill:#04121b">RULE MAP</text>
           </g>
 
-          <!-- NODE: 6 FORMULA VIEW -->
-          <g class="node" data-node="n6">
-            <rect x="434" y="180" width="210" height="100" rx="12"/>
-            <text class="idx" x="452" y="206">STAGE 2b · FORMULA VIEW</text>
-            <text class="nm" x="452" y="230">KaTeX renderer</text>
-            <text class="meta" x="452" y="249">StrategyDetail · LaTeX formulas</text>
-            <text class="note" x="452" y="268">real math from the paper reaches the eye</text>
-          </g>
-
-          <!-- NODE: 3 USER INPUT -->
+          <!-- NODE: L3 ENGINES -->
           <g class="node" data-node="n3">
-            <rect x="14" y="180" width="220" height="130" rx="12"/>
-            <text class="idx" x="32" y="206">STAGE 3a · USER INPUT</text>
-            <text class="nm" x="32" y="230">return / vol / capital sliders</text>
-            <text class="meta" x="32" y="249">μ = 10%, σ = 16% (defaults)</text>
-            <text class="meta" x="32" y="265">+ years · rebalance · seed</text>
-            <text class="note" x="32" y="284">synthetic path: assumption → GBM</text>
+            <rect x="634" y="40" width="240" height="110" rx="12"/>
+            <text class="idx" x="652" y="66">L3 · ENGINES</text>
+            <text class="nm" x="652" y="90">simulation.ts / backtest.ts</text>
+            <text class="meta" x="652" y="109">GBM approx · historical overlays</text>
+            <text class="note" x="652" y="128">deterministic; no page calls these directly</text>
+            <rect class="chip" x="652" y="129" width="110" height="14"/><text class="chip" x="657" y="139" style="fill:#04121b">ORCHESTRATION</text>
+          </g>
+
+          <!-- NODE: USER INPUT -->
+          <g class="node" data-node="n4">
+            <rect x="14" y="180" width="180" height="120" rx="12"/>
+            <text class="idx" x="32" y="206">INPUT · USER</text>
+            <text class="nm" x="32" y="230">sliders / ticker / horizon</text>
+            <text class="meta" x="32" y="249">μ · σ · capital · years · seed</text>
+            <text class="meta" x="32" y="265">rebalance · signal · proxy</text>
+            <text class="note" x="32" y="284">drives synthetic or historical runs</text>
             <rect class="chip" x="32" y="286" width="92" height="14"/><text class="chip" x="37" y="296" style="fill:#04121b">USER INPUT</text>
           </g>
 
-          <!-- NODE: 7 EXTERNAL DATA -->
-          <g class="node" data-node="n7">
-            <rect x="694" y="180" width="180" height="130" rx="12"/>
-            <text class="idx" x="712" y="206">STAGE 3b · EXTERNAL DATA</text>
+          <!-- NODE: EXTERNAL DATA -->
+          <g class="node" data-node="n5">
+            <rect x="694" y="180" width="180" height="120" rx="12"/>
+            <text class="idx" x="712" y="206">INPUT · EXTERNAL</text>
             <text class="nm" x="712" y="230">Yahoo Finance</text>
             <text class="meta" x="712" y="249">CORS proxy → daily OHLC</text>
             <text class="meta" x="712" y="265">simple overlays (mom / MR / BH)</text>
@@ -209,35 +211,46 @@
             <rect class="chip" x="712" y="286" width="106" height="14"/><text class="chip" x="717" y="296" style="fill:#04121b">LIVE (OPTIONAL)</text>
           </g>
 
-          <!-- NODE: 4 ENGINE -->
-          <g class="node" data-node="n4">
-            <rect x="194" y="360" width="500" height="120" rx="12"/>
-            <text class="idx" x="212" y="386">STAGE 4 · ENGINE</text>
-            <text class="nm" x="212" y="410">simulation.ts / backtest.ts</text>
-            <text class="meta" x="212" y="429">Arithmetic GBM: r = μ/252 + (σ/√252)·z</text>
-            <text class="meta" x="212" y="445">Not exact exp GBM; equity *= (1 + r)</text>
-            <text class="meta" x="212" y="461">Vol = mean(r²)·252; Sharpe subtracts 4%</text>
-            <text class="note" x="212" y="476">seed=42 · Box–Muller · strategies label, not drive</text>
+          <!-- NODE: L4 RESULTS -->
+          <g class="node" data-node="n6">
+            <rect x="434" y="320" width="180" height="120" rx="12"/>
+            <text class="idx" x="452" y="346">L4 · RESULTS</text>
+            <text class="nm" x="452" y="370">Provenance-tagged objects</text>
+            <text class="meta" x="452" y="389">dates · equity[] · returns[]</text>
+            <text class="meta" x="452" y="405">metrics + assumptions[]</text>
+            <text class="note" x="452" y="424">every number carries its source label</text>
+            <rect class="chip" x="452" y="425" width="96" height="14"/><text class="chip" x="457" y="435" style="fill:#04121b">LABELED</text>
           </g>
 
-          <!-- NODE: 5 RENDER -->
-          <g class="node" data-node="n5">
-            <rect x="194" y="540" width="360" height="100" rx="12"/>
-            <text class="idx" x="304" y="546">STAGE 5 · RENDER</text>
-            <text class="nm" x="304" y="570">Recharts + KaTeX + Framer</text>
-            <text class="meta" x="304" y="589">Equity curves · risk metrics · correlation matrix</text>
-            <text class="note" x="304" y="608">polished display of pre-computed values</text>
-            <rect class="chip" x="304" y="596" width="96" height="14"/><text class="chip" x="309" y="606" style="fill:#04121b">PRESENTATION</text>
+          <!-- NODE: L5 ANALYTICS -->
+          <g class="node" data-node="n7">
+            <rect x="214" y="320" width="180" height="120" rx="12"/>
+            <text class="idx" x="232" y="346">L5 · ANALYTICS</text>
+            <text class="nm" x="232" y="370">Derived metrics</text>
+            <text class="meta" x="232" y="389">Sharpe · drawdown · win rate</text>
+            <text class="meta" x="232" y="405">+ cosmetic VaR/ES/corr</text>
+            <text class="note" x="232" y="424">computed or labeled, never hidden</text>
+            <rect class="chip" x="232" y="425" width="88" height="14"/><text class="chip" x="237" y="435" style="fill:#04121b">DERIVED</text>
           </g>
 
-          <!-- NODE: 8 COSMETIC -->
+          <!-- NODE: L6 PRESENTATION -->
           <g class="node" data-node="n8">
-            <rect x="584" y="540" width="150" height="100" rx="12"/>
-            <text class="idx" x="602" y="566">STAGE 5b · COSMETIC</text>
-            <text class="nm" x="602" y="590">hardcoded / cosmetic</text>
-            <text class="meta" x="602" y="609">VaR −2.4% · ES −3.7%</text>
-            <text class="meta" x="602" y="625">trades = ⌊days·0.6⌋</text>
-            <rect class="chip" x="602" y="618" width="88" height="14"/><text class="chip" x="607" y="628" style="fill:#04121b">NOT COMPUTED</text>
+            <rect x="14" y="520" width="340" height="100" rx="12"/>
+            <text class="idx" x="32" y="546">L6 · PRESENTATION</text>
+            <text class="nm" x="32" y="570">React pages + Recharts + KaTeX</text>
+            <text class="meta" x="32" y="589">read-only consumers of results</text>
+            <text class="note" x="32" y="608">must display provenance; must not invent numbers</text>
+            <rect class="chip" x="32" y="596" width="96" height="14"/><text class="chip" x="37" y="606" style="fill:#04121b">PRESENTATION</text>
+          </g>
+
+          <!-- NODE: COSMETIC -->
+          <g class="node" data-node="n9">
+            <rect x="600" y="520" width="160" height="100" rx="12"/>
+            <text class="idx" x="618" y="546">COSMETIC / STUB</text>
+            <text class="nm" x="618" y="570">hardcoded numbers</text>
+            <text class="meta" x="618" y="589">VaR −2.4% · ES −3.7%</text>
+            <text class="meta" x="618" y="605">trades ≈ days·0.6 · rand corr</text>
+            <rect class="chip" x="618" y="596" width="88" height="14"/><text class="chip" x="623" y="606" style="fill:#04121b">NOT COMPUTED</text>
           </g>
         </svg>
       </div>
@@ -249,7 +262,7 @@
 
     <!-- ===== FLOW LEGEND ===== -->
     <div class="card">
-      <h2><span class="dot" style="background:var(--param);box-shadow:0 0 10px rgba(251,191,36,.6)"></span>Flows · click to pin <span class="tag">9 paths</span></h2>
+      <h2><span class="dot" style="background:var(--param);box-shadow:0 0 10px rgba(251,191,36,.6)"></span>Flows · click to pin <span class="tag">10 paths</span></h2>
       <div class="fl" id="fl">
         <div class="tip">Hover to preview · click to pin · badge color = signal class.</div>
 
@@ -260,51 +273,57 @@
         </div>
 
         <div class="flrow" data-flow="f2" style="--fcolor:var(--real)">
-          <div class="top"><span class="badge">2</span><span class="ttl">Catalog → Surface</span><span class="from">strategies.ts → 9 pages</span></div>
-          <div class="desc">Every page reads the same frozen file. The dominant, real-data flow.</div>
-          <div class="truth" style="color:var(--real)">REAL — transcribed, but static</div>
+          <div class="top"><span class="badge">2</span><span class="ttl">Catalog → Signals</span><span class="from">category → rule</span></div>
+          <div class="desc">A strategy category maps to a simple price-overlay signal (momentum, mean-reversion, buy-hold).</div>
+          <div class="truth" style="color:var(--real)">REAL MAP — simplified rule, not strategy implementation</div>
         </div>
 
-        <div class="flrow" data-flow="f7" style="--fcolor:var(--present)">
-          <div class="top"><span class="badge">3</span><span class="ttl">Catalog → Formula view</span><span class="from">LaTeX → KaTeX</span></div>
-          <div class="desc">StrategyDetail renders stored LaTeX. Real math from the paper reaches the eye.</div>
-          <div class="truth" style="color:var(--present)">REAL (display) — math, not results</div>
+        <div class="flrow" data-flow="f3" style="--fcolor:var(--real)">
+          <div class="top"><span class="badge">3</span><span class="ttl">Signals → Engines</span><span class="from">rule → engine</span></div>
+          <div class="desc">The signal rule is passed to the simulation or historical engine.</div>
+          <div class="truth" style="color:var(--real)">RULE INPUT — labels the run</div>
         </div>
 
-        <div class="flrow" data-flow="f3" style="--fcolor:var(--input)">
-          <div class="top"><span class="badge">4</span><span class="ttl">Surface → User Input</span><span class="from">Wizard / Backtest → μ, σ</span></div>
+        <div class="flrow" data-flow="f4" style="--fcolor:var(--input)">
+          <div class="top"><span class="badge">4</span><span class="ttl">User Input → Engines</span><span class="from">sliders → μ, σ</span></div>
           <div class="desc">User drags return/vol sliders. This drives synthetic backtests.</div>
           <div class="truth" style="color:var(--input)">USER INPUT — synthetic alpha enters here</div>
         </div>
 
-        <div class="flrow" data-flow="f8" style="--fcolor:var(--external)">
-          <div class="top"><span class="badge">5</span><span class="ttl">Surface → External Data</span><span class="from">Backtest → Yahoo Finance</span></div>
+        <div class="flrow" data-flow="f5" style="--fcolor:var(--external)">
+          <div class="top"><span class="badge">5</span><span class="ttl">External Data → Engines</span><span class="from">Yahoo → overlays</span></div>
           <div class="desc">Optional network fetch through a user-supplied CORS proxy. The only live-data path.</div>
-          <div class="truth" style="color:var(--external)">LIVE (OPTIONAL) — real prices, simple overlays</div>
+          <div class="truth" style="color:var(--external)">LIVE (OPTIONAL) — real prices, naive rules</div>
         </div>
 
-        <div class="flrow" data-flow="f4" style="--fcolor:var(--param)">
-          <div class="top"><span class="badge">6</span><span class="ttl">User Input → Engine</span><span class="from">μ,σ → runBacktest</span></div>
-          <div class="desc">Assumed return/vol become daily arithmetic returns (not exact exponential GBM). Vol estimator uses mean(r²); Sharpe subtracts a hardcoded 4%.</div>
-          <div class="truth" style="color:var(--param)">PARAMETRIC — assumption in, noise out</div>
+        <div class="flrow" data-flow="f6" style="--fcolor:var(--param)">
+          <div class="top"><span class="badge">6</span><span class="ttl">Engines → Results</span><span class="from">equity[] → object</span></div>
+          <div class="desc">Engines output provenance-tagged objects: dates, equity, returns, drawdowns, metrics, assumptions.</div>
+          <div class="truth" style="color:var(--param)">LABELED — every number knows its source</div>
         </div>
 
-        <div class="flrow" data-flow="f9" style="--fcolor:var(--external)">
-          <div class="top"><span class="badge">7</span><span class="ttl">External Data → Engine</span><span class="from">Yahoo prices → overlays</span></div>
-          <div class="desc">Historical prices run through simple momentum, mean-reversion, or buy-and-hold overlays.</div>
-          <div class="truth" style="color:var(--external)">HISTORICAL — real prices, naive rules</div>
+        <div class="flrow" data-flow="f7" style="--fcolor:var(--param)">
+          <div class="top"><span class="badge">7</span><span class="ttl">Results → Analytics</span><span class="from">metrics → derived</span></div>
+          <div class="desc">Sharpe, drawdown, win rate are derived from the result series. Cosmetic metrics are injected here too.</div>
+          <div class="truth" style="color:var(--param)">DERIVED — computed or labeled</div>
         </div>
 
-        <div class="flrow" data-flow="f5" style="--fcolor:var(--present)">
-          <div class="top"><span class="badge">8</span><span class="ttl">Engine → Render</span><span class="from">equity[] → Recharts</span></div>
-          <div class="desc">The synthetic or historical curve renders as a "backtest equity curve".</div>
-          <div class="truth" style="color:var(--present)">DISPLAY — dressed as a result</div>
+        <div class="flrow" data-flow="f8" style="--fcolor:var(--present)">
+          <div class="top"><span class="badge">8</span><span class="ttl">Analytics → Presentation</span><span class="from">numbers → UI</span></div>
+          <div class="desc">React pages render results with Recharts and KaTeX. Pages are read-only consumers.</div>
+          <div class="truth" style="color:var(--present)">PRESENTATION — dressed as a result</div>
         </div>
 
-        <div class="flrow" data-flow="f6" style="--fcolor:var(--cosmetic)">
-          <div class="top"><span class="badge">9</span><span class="ttl">Cosmetic → Render</span><span class="from">literals → Analytics</span></div>
-          <div class="desc">VaR / ES / trades are cosmetic. Correlation matrix is random noise, not symmetric. Settings API config is stored, not executed.</div>
-          <div class="truth" style="color:var(--cosmetic)">COSMETIC / CONFIG — the leak</div>
+        <div class="flrow" data-flow="f9" style="--fcolor:var(--cosmetic)">
+          <div class="top"><span class="badge">9</span><span class="ttl">Cosmetic → Analytics</span><span class="from">literals → Analytics</span></div>
+          <div class="desc">VaR / ES / trades / correlation matrix are hardcoded or random. Not computed from data.</div>
+          <div class="truth" style="color:var(--cosmetic)">COSMETIC — the leak</div>
+        </div>
+
+        <div class="flrow" data-flow="f10" style="--fcolor:var(--cosmetic)">
+          <div class="top"><span class="badge">10</span><span class="ttl">Config → Status</span><span class="from">Settings → status.ts</span></div>
+          <div class="desc">API keys, endpoints, and Swagger URLs are stored locally. No live connection or trading.</div>
+          <div class="truth" style="color:var(--cosmetic)">CONFIG ONLY — no execution</div>
         </div>
       </div>
     </div>
@@ -312,12 +331,13 @@
 
   <!-- ===== STAGE BAND ===== -->
   <div class="band">
-    <div class="stage"><div class="s">Catalog</div><div class="t">171 strategies</div><div class="d">names · cats · complexity · tags · LaTeX</div><span class="c" style="background:var(--real)">REAL · STATIC</span></div>
-    <div class="stage"><div class="s">Formula view</div><div class="t">KaTeX</div><div class="d">real math from the paper</div><span class="c" style="background:var(--present)">REAL DISPLAY</span></div>
-    <div class="stage"><div class="s">Input</div><div class="t">sliders or Yahoo Finance</div><div class="d">synthetic assumptions OR live prices</div><span class="c" style="background:var(--input)">USER / LIVE</span></div>
-    <div class="stage"><div class="s">"Engine"</div><div class="t">Arithmetic GBM approx</div><div class="d">seed 42 · Box–Muller · 252-day path</div><span class="c" style="background:var(--param)">PARAMETRIC</span></div>
-    <div class="stage"><div class="s">Leak</div><div class="t">VaR −2.4% / ES −3.7%</div><div class="d">hardcoded constants, not computed</div><span class="c" style="background:var(--cosmetic)">NOT COMPUTED</span></div>
-    <div class="stage"><div class="s">Render</div><div class="t">Recharts + KaTeX</div><div class="d">polished display of the above</div><span class="c" style="background:var(--present)">PRESENTATION</span></div>
+    <div class="stage"><div class="s">L0 Source</div><div class="t">SSRN-3247865</div><div class="d">frozen 2018 paper</div><span class="c" style="background:var(--struct)">FROZEN</span></div>
+    <div class="stage"><div class="s">L1 Catalog</div><div class="t">171 strategies</div><div class="d">+ config.ts assumptions</div><span class="c" style="background:var(--real)">REAL · STATIC</span></div>
+    <div class="stage"><div class="s">L2 Signals</div><div class="t">category → rule</div><div class="d">momentum / MR / BH</div><span class="c" style="background:var(--real)">RULE MAP</span></div>
+    <div class="stage"><div class="s">L3 Engines</div><div class="t">GBM + overlays</div><div class="d">deterministic runs</div><span class="c" style="background:var(--param)">PARAMETRIC</span></div>
+    <div class="stage"><div class="s">L4 Results</div><div class="t">provenance objects</div><div class="d">every number labeled</div><span class="c" style="background:var(--input)">LABELED</span></div>
+    <div class="stage"><div class="s">L5 Analytics</div><div class="t">derived metrics</div><div class="d">Sharpe · drawdown · VaR*</div><span class="c" style="background:var(--param)">DERIVED</span></div>
+    <div class="stage"><div class="s">L6 Presentation</div><div class="t">React UI</div><div class="d">read-only rendering</div><span class="c" style="background:var(--present)">PRESENTATION</span></div>
   </div>
 
   <div class="classes">
@@ -332,8 +352,8 @@
   </div>
 
   <div class="foot">
-    <span>Perspective: <b style="color:var(--muted)">a strategy catalog with a simulation layer</b> — the real alpha comes from understanding the catalog; the curves come from sliders or a Yahoo Finance overlay.</span>
-    <span>read from source · <code>lib/simulation.ts</code> <code>lib/backtest.ts</code> <code>pages/Backtest.tsx</code> <code>pages/Settings.tsx</code> · Vantage Seeker v0.0.0</span>
+    <span>Perspective: <b style="color:var(--muted)">a provenance-aware strategy catalog</b> — the value is in understanding what each number is, not in trusting it blindly.</span>
+    <span>read from source · <code>AGENTS.md</code> <code>src/lib/model.ts</code> <code>src/lib/engines.ts</code> <code>src/lib/status.ts</code> · Vantage Seeker v0.0.0</span>
   </div>
 </div>
 
@@ -342,28 +362,29 @@
   var svg=document.getElementById('map');
   var flows={}; svg.querySelectorAll('.flow').forEach(function(f){flows[f.dataset.flow]=f;});
   var nodes={}; svg.querySelectorAll('.node').forEach(function(n){nodes[n.dataset.node]=n;});
-  // which nodes each flow touches
   var span={
     f1:['n0','n1'],
     f2:['n1','n2'],
-    f7:['n2','n6'],
     f3:['n2','n3'],
-    f8:['n2','n7'],
-    f4:['n3','n4'],
-    f9:['n7','n4'],
-    f5:['n4','n5'],
-    f6:['n8','n5']
+    f4:['n4','n3'],
+    f5:['n5','n3'],
+    f6:['n3','n6'],
+    f7:['n6','n7'],
+    f8:['n7','n8'],
+    f9:['n9','n7'],
+    f10:['n1','n9']
   };
   var color={
     f1:'var(--struct)',
     f2:'var(--real)',
-    f7:'var(--present)',
-    f3:'var(--input)',
-    f8:'var(--external)',
-    f4:'var(--param)',
-    f9:'var(--external)',
-    f5:'var(--present)',
-    f6:'var(--cosmetic)'
+    f3:'var(--real)',
+    f4:'var(--input)',
+    f5:'var(--external)',
+    f6:'var(--param)',
+    f7:'var(--param)',
+    f8:'var(--present)',
+    f9:'var(--cosmetic)',
+    f10:'var(--cosmetic)'
   };
   var locked=null;
 
@@ -379,7 +400,6 @@
     (span[fid]||[]).forEach(function(n){ if(nodes[n]){nodes[n].classList.add('lit');nodes[n].style.setProperty('--fcolor',color[fid]);}});
     svg.setAttribute('data-focus',fid);
   }
-  // legend rows
   var rows=[].slice.call(document.querySelectorAll('.flrow'));
   rows.forEach(function(r){
     var fid=r.dataset.flow;
@@ -390,7 +410,6 @@
       locked=fid; rows.forEach(function(x){x.classList.remove('active');}); r.classList.add('active'); light(fid);
     });
   });
-  // svg flow hover
   Object.keys(flows).forEach(function(fid){
     flows[fid].style.cursor='pointer';
     flows[fid].addEventListener('mouseenter',function(){ if(!locked){light(fid); markRow(fid,true);}});
@@ -403,8 +422,7 @@
     locked=null; clear(); rows.forEach(function(x){x.classList.remove('active');});
   });
 
-  // run trace: the real signal path, step by step, in order
-  var trace=['f3','f4','f5','f6'];
+  var trace=['f4','f6','f7','f9'];
   var btn=document.getElementById('runtrace');
   btn.addEventListener('click',function(){
     if(btn.dataset.busy) return; btn.dataset.busy='1'; locked=null;

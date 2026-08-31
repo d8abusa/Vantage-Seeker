@@ -2,6 +2,10 @@
 
 > An interactive catalog and research frontend for the 151 trading strategies in Kakushadze & Serur's *151 Trading Strategies* (SSRN-3247865).
 
+## Agent operating notes
+
+If you are an AI agent working on this codebase, **read `AGENTS.md` first**. It contains the abstraction tower, operational modes, common traps, deterministic fixtures, and accretion recipes. The system is designed as a layered, provenance-aware runtime; `AGENTS.md` is its contract.
+
 ## Genesis
 
 Vantage Seeker was born from a single question: *What would it look like if the compendium of strategies in [Kakushadze & Serur, "151 Trading Strategies" (SSRN-3247865)](https://ssrn.com/abstract=3247865) were available as a modern, interactive research platform?*

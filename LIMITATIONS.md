@@ -2,6 +2,25 @@
 
 Vantage Seeker is a **frontend research workbench and strategy catalog**. It is useful for exploring, comparing, and reasoning about quantitative trading strategies, but it is not a production trading system. Please understand the following limitations before drawing any conclusions from the numbers it produces.
 
+## Truth table
+
+| Feature / Output | Source | Provenance | Notes |
+|------------------|--------|------------|-------|
+| Strategy names, categories, tags, LaTeX formulas | Kakushadze & Serur, *151 Trading Strategies* (SSRN-3247865) | `real` | Transcribed at build time; frozen |
+| Strategy complexity levels | Inferred during transcription | `config` | Subjective mapping |
+| Synthetic backtest equity curves | Arithmetic GBM approximation | `synthetic` | `src/lib/simulation.ts` |
+| Historical backtest prices | Yahoo Finance daily closes | `real` | `src/lib/data/yahoo.ts` |
+| Historical signal overlays | 20/50 SMA, z-score, or buy-hold | `synthetic` | `src/lib/backtest.ts` |
+| Synthetic volatility | `mean(r²) × √252` | `synthetic` | Biased: does not subtract mean |
+| Synthetic Sharpe ratio | `(annReturn − 4%) / vol` | `synthetic` | Hardcoded 4% risk-free rate |
+| Synthetic `trades` metric | `floor(days × 0.6)` | `cosmetic` | Not a real trade count |
+| Analytics VaR / ES / beta / stress loss | Hardcoded literals | `cosmetic` | `src/lib/config.ts` |
+| Analytics correlation matrix | Random noise | `cosmetic` | Not symmetric or positive-definite |
+| Portfolio expected return/vol/sharpe | Weighted category presets | `synthetic` | Assumes zero correlation |
+| Strategy Wizard ranking | Perturbed synthetic assumptions | `synthetic` | Not a recommendation |
+| Settings API connection status | Stored config only | `config` | No live endpoint validation |
+| Layout "Data feeds live" badge | Always-rendered UI element | `presentation` | Does not reflect actual connectivity |
+
 ## What this project is
 
 - An interactive catalog of the strategies described in Kakushadze & Serur, *151 Trading Strategies* (SSRN-3247865).
@@ -19,15 +38,17 @@ Vantage Seeker is a **frontend research workbench and strategy catalog**. It is 
 
 ### No live market data by default
 
-By default, Vantage Seeker does not connect to any market data provider. Prices, returns, and equity curves are generated synthetically unless you explicitly connect an API key in **Settings → API Connections** and the adapter for that provider has been implemented.
+By default, Vantage Seeker does not connect to any market data provider. Prices, returns, and equity curves are generated synthetically unless you explicitly configure a Yahoo Finance CORS proxy in **Settings** or connect an implemented API adapter.
 
 ### Backtests are simulations, not history
 
-Unless a data-provider adapter is active, the **Backtest Lab** and **Strategy Wizard** use Monte Carlo simulation based on:
+Unless a data-provider adapter is active, the **Backtest Lab** and **Strategy Wizard** use a parametric simulation based on:
 
 - An assumed annual return.
 - An assumed annual volatility.
-- A random seed derived from the strategy ID for reproducibility.
+- A seeded linear congruential generator for reproducibility.
+
+This is an **arithmetic GBM approximation**, not the exact exponential GBM solution. The daily step is `r = μ/252 + (σ/√252) × Z`, then `E = E × (1 + r)`. Because it uses `1 + r` rather than `exp(r)`, a sufficiently extreme negative draw can in principle push the path through zero (unlikely for reasonable daily vol).
 
 These simulations are useful for sensitivity analysis and quick comparisons, but they are **not** historical backtests. They do not reflect actual market regimes, correlations, liquidity events, or tail risks.
 
@@ -48,7 +69,7 @@ The current simulations do not model:
 - Strategy descriptions and formulas are **pedagogical summaries** from the original paper, not plug-and-play production code.
 - Many strategies require data or instruments that are not freely available (e.g., CDS spreads, convertible bond terms, distressed debt quotes).
 - Some strategies are academic illustrations rather than practical implementations.
-- The ranking in the **Strategy Wizard** is based on synthetic Sharpe ratios and should be treated as a starting point for research, not a recommendation.
+- The ranking in the **Strategy Wizard** is based on synthetic Sharpe ratios from perturbed assumptions and should be treated as a starting point for research, not a recommendation.
 
 ## Risk and compliance
 
