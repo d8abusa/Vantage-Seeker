@@ -59,6 +59,8 @@ Reference key quant terms, acronyms, and notation from the paper.
 
 For an interactive, evidence-annotated view of how data actually flows through the app — including the static strategy catalog, synthetic engine, optional Yahoo Finance path, and hardcoded cosmetic numbers — see [`docs/system-map.html`](./docs/system-map.html). Open it in a browser and hover the flows to trace where each on-screen number comes from.
 
+![Vantage Seeker system map](.github/assets/system-map.png)
+
 ## Screenshots
 
 > All charts, metrics, and P&L figures below are **illustrative simulations** for demonstration purposes. They do not reflect live market data or guaranteed performance.
