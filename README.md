@@ -55,6 +55,40 @@ Manage data provider keys with service names, endpoints, Swagger/OpenAPI spec UR
 
 Reference key quant terms, acronyms, and notation from the paper.
 
+## Screenshots
+
+> All charts, metrics, and P&L figures below are **illustrative simulations** for demonstration purposes. They do not reflect live market data or guaranteed performance.
+
+### Dashboard
+
+The main overview shows the full strategy universe, simulated fund performance, and asset-class coverage at a glance.
+
+![Dashboard](.github/assets/dashboard.png)
+
+### Strategy Universe
+
+Browse, search, and filter all 171 strategies derived from SSRN-3247865.
+
+![Strategy Universe](.github/assets/strategies.png)
+
+### Strategy Wizard
+
+Pick an asset class and ticker, then run every relevant strategy to surface the top 3 by risk-adjusted return.
+
+![Strategy Wizard](.github/assets/wizard.png)
+
+### Backtest Lab
+
+Run synthetic Monte Carlo simulations or fetch historical prices from Yahoo Finance to compare strategy overlays.
+
+![Backtest Lab](.github/assets/backtest.png)
+
+### Risk Analytics
+
+Inspect portfolio-level VaR, drawdowns, strategy comparisons, and cross-asset correlations.
+
+![Risk Analytics](.github/assets/analytics.png)
+
 ## Tech stack
 
 - **Vite** + **React 19** + **TypeScript 6**
