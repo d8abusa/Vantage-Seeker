@@ -97,6 +97,12 @@ npm run preview
 npm test
 ```
 
+## Historical backtests
+
+The Backtest Lab can fetch real price data from **Yahoo Finance**. Because Yahoo does not send CORS headers, browser requests may be blocked unless you route them through a CORS proxy. You can configure a proxy URL directly in the Backtest Lab UI (e.g. `https://corsproxy.io/?`).
+
+Historical backtests currently apply simple strategy overlays (momentum, mean-reversion, or buy-and-hold) and do not include dividends, fees, slippage, or borrow costs. See [LIMITATIONS.md](./LIMITATIONS.md).
+
 ## Credits
 
 Vantage Seeker would not exist without the foundational work of **Zura Kakushadze** and **Juan Andrés Serur**.
@@ -133,7 +139,7 @@ This application is a pedagogical frontend; it does not provide investment advic
 - [x] Strategy Wizard ranking
 - [x] Portfolio builder
 - [x] Risk analytics
-- [ ] Historical price backtests via data provider integration
+- [x] Historical price backtests via Yahoo Finance
 - [ ] Transaction-cost and slippage modeling
 - [ ] Strategy parameter optimization
 - [ ] Exportable research reports
