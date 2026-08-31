@@ -211,12 +211,13 @@
 
           <!-- NODE: 4 ENGINE -->
           <g class="node" data-node="n4">
-            <rect x="194" y="360" width="500" height="110" rx="12"/>
+            <rect x="194" y="360" width="500" height="120" rx="12"/>
             <text class="idx" x="212" y="386">STAGE 4 · ENGINE</text>
             <text class="nm" x="212" y="410">simulation.ts / backtest.ts</text>
-            <text class="meta" x="212" y="429">GBM: μ/252 + (σ/√252)·z, Box–Muller, seed=42</text>
-            <text class="meta" x="212" y="445">Historical: simple price-based overlays</text>
-            <text class="note" x="212" y="462">strategies label the run; they do not drive it</text>
+            <text class="meta" x="212" y="429">Arithmetic GBM: r = μ/252 + (σ/√252)·z</text>
+            <text class="meta" x="212" y="445">Not exact exp GBM; equity *= (1 + r)</text>
+            <text class="meta" x="212" y="461">Vol = mean(r²)·252; Sharpe subtracts 4%</text>
+            <text class="note" x="212" y="476">seed=42 · Box–Muller · strategies label, not drive</text>
           </g>
 
           <!-- NODE: 5 RENDER -->
@@ -233,9 +234,9 @@
           <g class="node" data-node="n8">
             <rect x="584" y="540" width="150" height="100" rx="12"/>
             <text class="idx" x="602" y="566">STAGE 5b · COSMETIC</text>
-            <text class="nm" x="602" y="590">hardcoded numbers</text>
+            <text class="nm" x="602" y="590">hardcoded / cosmetic</text>
             <text class="meta" x="602" y="609">VaR −2.4% · ES −3.7%</text>
-            <text class="meta" x="602" y="625">trades ≈ days·0.6</text>
+            <text class="meta" x="602" y="625">trades = ⌊days·0.6⌋</text>
             <rect class="chip" x="602" y="618" width="88" height="14"/><text class="chip" x="607" y="628" style="fill:#04121b">NOT COMPUTED</text>
           </g>
         </svg>
@@ -284,7 +285,7 @@
 
         <div class="flrow" data-flow="f4" style="--fcolor:var(--param)">
           <div class="top"><span class="badge">6</span><span class="ttl">User Input → Engine</span><span class="from">μ,σ → runBacktest</span></div>
-          <div class="desc">Assumed return/vol become GBM drift &amp; volatility. Seeded RNG produces the curve.</div>
+          <div class="desc">Assumed return/vol become daily arithmetic returns (not exact exponential GBM). Vol estimator uses mean(r²); Sharpe subtracts a hardcoded 4%.</div>
           <div class="truth" style="color:var(--param)">PARAMETRIC — assumption in, noise out</div>
         </div>
 
@@ -302,7 +303,7 @@
 
         <div class="flrow" data-flow="f6" style="--fcolor:var(--cosmetic)">
           <div class="top"><span class="badge">9</span><span class="ttl">Cosmetic → Render</span><span class="from">literals → Analytics</span></div>
-          <div class="desc">VaR / ES are hardcoded strings; correlation matrix is random noise. Settings API config is stored, not executed.</div>
+          <div class="desc">VaR / ES / trades are cosmetic. Correlation matrix is random noise, not symmetric. Settings API config is stored, not executed.</div>
           <div class="truth" style="color:var(--cosmetic)">COSMETIC / CONFIG — the leak</div>
         </div>
       </div>
@@ -314,7 +315,7 @@
     <div class="stage"><div class="s">Catalog</div><div class="t">171 strategies</div><div class="d">names · cats · complexity · tags · LaTeX</div><span class="c" style="background:var(--real)">REAL · STATIC</span></div>
     <div class="stage"><div class="s">Formula view</div><div class="t">KaTeX</div><div class="d">real math from the paper</div><span class="c" style="background:var(--present)">REAL DISPLAY</span></div>
     <div class="stage"><div class="s">Input</div><div class="t">sliders or Yahoo Finance</div><div class="d">synthetic assumptions OR live prices</div><span class="c" style="background:var(--input)">USER / LIVE</span></div>
-    <div class="stage"><div class="s">"Engine"</div><div class="t">GBM + seed 42</div><div class="d">Box–Muller RNG, 252-day path</div><span class="c" style="background:var(--param)">PARAMETRIC</span></div>
+    <div class="stage"><div class="s">"Engine"</div><div class="t">Arithmetic GBM approx</div><div class="d">seed 42 · Box–Muller · 252-day path</div><span class="c" style="background:var(--param)">PARAMETRIC</span></div>
     <div class="stage"><div class="s">Leak</div><div class="t">VaR −2.4% / ES −3.7%</div><div class="d">hardcoded constants, not computed</div><span class="c" style="background:var(--cosmetic)">NOT COMPUTED</span></div>
     <div class="stage"><div class="s">Render</div><div class="t">Recharts + KaTeX</div><div class="d">polished display of the above</div><span class="c" style="background:var(--present)">PRESENTATION</span></div>
   </div>
